@@ -10,6 +10,8 @@
 @using (Html.BeginForm("Save", "Books"))
 {
     @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
     <div class="form-group">
     @Html.LabelFor(m => m.Book.Name)
     @Html.TextBoxFor(m => m.Book.Name, new { @class = "form-control" })
@@ -41,4 +43,8 @@
     @Html.HiddenFor(m => m.Book.Id)
     ;
     <button type="submit" class="btn btn-primary">Save</button>
+}
+
+@section scripts{
+<partial name="_ValidationScriptsPartial" />
 }

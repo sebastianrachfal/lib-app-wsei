@@ -65,6 +65,8 @@ namespace LibApp.Controllers
     [HttpPost]
     public IActionResult Save(Book book)
     {
+      if (!ModelState.IsValid) return RedirectToAction("New", "Books");
+
       if (book.Id == 0)
       {
         book.DateAdded = DateTime.Now;
@@ -91,20 +93,6 @@ namespace LibApp.Controllers
       }
 
       return RedirectToAction("Index", "Books");
-    }
-
-    [HttpGet]
-    [Route("api/books")]
-    public IList<Book> GetBooks()
-    {
-      return repository.GetBooks().ToList();
-    }
-
-    [HttpGet]
-    [Route("api/genres")]
-    public IList<Genre> GetGenres()
-    {
-      return repository.GetGenres().ToList();
     }
   }
 }
