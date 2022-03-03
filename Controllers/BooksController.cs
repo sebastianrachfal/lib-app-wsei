@@ -8,9 +8,11 @@ using LibApp.ViewModels;
 using LibApp.Data;
 using Microsoft.EntityFrameworkCore;
 using LibApp.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibApp.Controllers
 {
+  [Authorize]
   public class BooksController : Controller
   {
     private readonly IBookRepository repository;
@@ -37,7 +39,7 @@ namespace LibApp.Controllers
 
     public IActionResult Edit(int id)
     {
-      var book = repository.GetBooks().SingleOrDefault(b => b.Id == id);
+      var book = repository.GetBookById(id);
       if (book == null)
       {
         return NotFound();
@@ -74,7 +76,8 @@ namespace LibApp.Controllers
       }
       else
       {
-        var bookInDb = repository.GetBooks().Single(c => c.Id == book.Id);
+        var bookInDb = repository.GetBookById(book.Id);
+
         bookInDb.Name = book.Name;
         bookInDb.AuthorName = book.AuthorName;
         bookInDb.GenreId = book.GenreId;

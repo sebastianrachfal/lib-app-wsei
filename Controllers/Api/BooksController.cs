@@ -9,32 +9,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LibApp.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibApp.Controllers.Api
 {
+  [Authorize]
   [Route("api/[controller]")]
   [ApiController]
   public class BooksController : ControllerBase
   {
-    public BooksController(ApplicationDbContext context, IMapper mapper)
+    private readonly IBookRepository repository;
+    public BooksController(IBookRepository _repo)
     {
-      _context = context;
-      _mapper = mapper;
+      repository = _repo;
     }
 
-    // GET /api/customers
+    // GET /api/books
     [HttpGet]
     public IActionResult GetBooks()
     {
-      var books = _context.Books
-          .Include(b => b.Genre)
+      var books = repository.GetBooks()
           .ToList();
-      //   .Select(_mapper.Map<Book, BookDto>);
 
       return Ok(books);
     }
 
-    private ApplicationDbContext _context;
-    private IMapper _mapper;
+    [Authorize(Roles = "StoreManager, Owner")]
+    [HttpDelete("{id}")]
+    public IActionResult RemoveBook(int id)
+    {
+      try
+      {
+        repository.DeleteBook(id);
+        repository.Save();
+      }
+      catch (Exception)
+      {
+        return NotFound();
+      }
+      return Ok();
+    }
   }
 }

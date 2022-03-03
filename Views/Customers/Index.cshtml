@@ -1,3 +1,6 @@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+
 @{
     ViewBag.Title = "Customers";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -16,7 +19,9 @@
         <tr>
             <th>Customer</th>
             <th>Discount Rate</th>
+            @if(User.IsInRole("Owner")) {
             <th>Delete</th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -44,12 +49,15 @@
                 {
                     data: "membershipType.discountRate"
                 },
-                {
+                @if(User.IsInRole("Owner")) {
+                    <text>{
                     data: "id",
                     render: function (data) {
                         return "<button class='btn btn-secondary js-delete' data-customer-id=" + data + ">Delete</button>";
                     }
+                }</text>
                 }
+                
             ]
         });
     });

@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LibApp.Interfaces;
 using LibApp.Repositories;
+
 namespace LibApp
 {
   public class Startup
@@ -36,8 +37,15 @@ namespace LibApp
 
       services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-      services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-          .AddEntityFrameworkStores<ApplicationDbContext>();
+      services.AddDefaultIdentity<IdentityUser>(options =>
+      {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.ClaimsIdentity.RoleClaimType = "User";
+      })
+          .AddRoles<IdentityRole>()
+          .AddEntityFrameworkStores<ApplicationDbContext>()
+          .AddDefaultTokenProviders();
+
 
       services.AddScoped<IBookRepository, BookRepository>();
 
@@ -45,7 +53,7 @@ namespace LibApp
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
     {
       if (env.IsDevelopment())
       {
@@ -73,6 +81,67 @@ namespace LibApp
                   pattern: "{controller=Home}/{action=Index}/{id?}");
         endpoints.MapRazorPages();
       });
+
+
+      Task.Run(() => this.CreateRoles(serviceProvider)).Wait();
+    }
+
+
+    private async Task CreateRoles(IServiceProvider serviceProvider)
+    {
+      var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+      var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+      foreach (string rol in this.Configuration.GetSection("Roles").Get<List<string>>())
+      {
+        if (!await roleManager.RoleExistsAsync(rol))
+        {
+          await roleManager.CreateAsync(new IdentityRole(rol));
+        }
+      }
+
+      var userList = new List<Tuple<IdentityUser, string>>();
+
+      userList.Add(
+          new Tuple<IdentityUser, string>(new IdentityUser
+          {
+            UserName = "rachfal-user@sebastian.com",
+            Email = "rachfal-user@sebastian.com",
+          }, "User")
+      );
+      userList.Add(
+          new Tuple<IdentityUser, string>(new IdentityUser
+          {
+            UserName = "rachfal-sm@sebastian.com",
+            Email = "rachfal-sm@sebastian.com",
+
+          }, "StoreManager")
+      );
+      userList.Add(
+          new Tuple<IdentityUser, string>(new IdentityUser
+          {
+            UserName = "rachfal-owner@sebastian.com",
+            Email = "rachfal-owner@sebastian.com",
+
+          }, "Owner")
+      );
+
+      string userPWD = Configuration["UserPassword"];
+
+      foreach (var user in userList)
+      {
+        var _user = await userManager.FindByEmailAsync(user.Item1.Email);
+
+        if (_user == null)
+        {
+          var newUser = await userManager.CreateAsync(user.Item1, userPWD);
+          if (newUser.Succeeded)
+          {
+            await userManager.AddToRoleAsync(user.Item1, user.Item2);
+          }
+        }
+      }
+
     }
   }
 }

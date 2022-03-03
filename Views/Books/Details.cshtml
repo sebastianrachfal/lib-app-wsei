@@ -12,4 +12,8 @@
     <li>Release Date: @Model.ReleaseDate.ToShortDateString()</li>
     <li>Date Added: @Model.DateAdded.ToShortDateString()</li>
     <li>Numbers in Stock: @Model.NumberInStock</li>
+    @if (User.IsInRole("StoreManager") || User.IsInRole("Owner"))
+    {
+        <a href="/books/edit/@Model.Id"><button>Edit</button></a>
+    }
 </ul>

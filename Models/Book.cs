@@ -23,7 +23,8 @@ namespace LibApp.Models
     [Required(ErrorMessage = "ReleaseDate is required.")]
     public DateTime ReleaseDate { get; set; }
     [Required(ErrorMessage = "NumberInStock is required.")]
-    [Range(1, 20, ErrorMessage = "NumberInStock must be between 1 and 20")]
+    [Range(1, 20, ErrorMessage = "NumberInStock must be between 1 and 20.")]
+    [RegularExpression("([1-9][0-9]*)", ErrorMessage = "NumberInStock must be an integer.")]
     public int NumberInStock { get; set; }
     [Required(ErrorMessage = "NumberAvailable is required.")]
     public int NumberAvailable { get; set; }
