@@ -1,4 +1,6 @@
 @model IEnumerable<LibApp.Models.Book>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewBag.Title = "Books";
@@ -16,7 +18,10 @@
         <tr>
             <th rowspan="2" colspan="1">Book</th>
             <th colspan="2" rowspan="1">Genre</th>
-            <th rowspan="2" colspan="1">Delete</th>
+             @if (User.IsInRole("StoreManager") || User.IsInRole("Owner"))
+            {
+                <th rowspan="2" colspan="1">Delete</th>
+            }
         </tr>
         <tr>
             <th rowspan="1" colspan="1">ID</th>
@@ -51,12 +56,14 @@
                 {
                     data: "genre.name"
                 },
-                {
+                 @if (User.IsInRole("StoreManager") || User.IsInRole("Owner")){
+                <text>{
                     data: "id",
                     render: function (data) {
                         return "<button class='btn btn-secondary js-delete' data-book-id=" + data + ">Delete</button>";
                     }
-                }
+                }</text>
+                 }
             ]
         });
     });

@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LibApp.Controllers
 {
-  [Authorize]
   public class BooksController : Controller
   {
     private readonly IBookRepository repository;
@@ -37,6 +36,7 @@ namespace LibApp.Controllers
       return View(book);
     }
 
+    [Authorize(Roles = "StoreManager, Owner")]
     public IActionResult Edit(int id)
     {
       var book = repository.GetBookById(id);
@@ -54,6 +54,7 @@ namespace LibApp.Controllers
       return View("BookForm", viewModel);
     }
 
+    [Authorize(Roles = "StoreManager, Owner")]
     public IActionResult New()
     {
       var viewModel = new BookFormViewModel
@@ -65,6 +66,7 @@ namespace LibApp.Controllers
     }
 
     [HttpPost]
+    [Authorize(Roles = "StoreManager, Owner")]
     public IActionResult Save(Book book)
     {
       if (!ModelState.IsValid) return RedirectToAction("New", "Books");

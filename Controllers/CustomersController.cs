@@ -39,7 +39,7 @@ namespace LibApp.Controllers
 
       return View(customer);
     }
-
+    [Authorize(Roles = "Owner")]
     public IActionResult New()
     {
       var membershipTypes = _context.MembershipTypes.ToList();
@@ -52,6 +52,7 @@ namespace LibApp.Controllers
       return View("CustomerForm", viewModel);
     }
 
+    [Authorize(Roles = "Owner")]
     public IActionResult Edit(int id)
     {
       var customer = _context.Customers.SingleOrDefault(c => c.Id == id);
@@ -69,6 +70,7 @@ namespace LibApp.Controllers
     }
 
     [HttpPost]
+    [Authorize(Roles = "Owner")]
     [ValidateAntiForgeryToken]
     public IActionResult Save(Customer customer)
     {
